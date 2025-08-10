@@ -666,6 +666,11 @@
                 videoId: videoInfo.videoId,
                 memo: memo,
                 date: new Date().toISOString()
+            }).then(() => {
+                console.log('비디오 추가 성공');
+            }).catch((error) => {
+                console.error('비디오 추가 실패:', error);
+                alert('비디오 추가 실패: ' + error.message);
             });
             
             titleInput.value = '';
