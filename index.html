@@ -756,13 +756,13 @@
             tbody.innerHTML = videoArray.map(([key, video], index) => `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${video.title}</td>
-                    <td><a href="${video.url}" target="_blank" class="video-link">${video.url}</a></td>
+                    <td>${video.title || ''}</td>
+                    <td><a href="${video.url || '#'}" target="_blank" class="video-link">${video.url || ''}</a></td>
                     <td>
-                        <span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>
+                        ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : '-'}
                     </td>
                     <td class="thumbnail-cell">
-                        <img src="${video.thumbnailUrl}" alt="${video.title}" class="thumbnail-img" onclick="window.open('${video.url}', '_blank')">
+                        ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="thumbnail-img" onclick="window.open('${video.url || '#'}', '_blank')">` : '-'}
                     </td>
                     <td style="max-width: 300px; word-wrap: break-word;">${video.memo || '-'}</td>
                     <td>
