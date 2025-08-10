@@ -2,207 +2,347 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4CAF50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>비디오 메모 - 동기화</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비디오 & 메모 관리자 - 동기화</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
-            min-height: 100vh;
+            padding: 20px;
         }
 
-        .header {
-            background: #4CAF50;
-            color: white;
-            padding: 15px;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
             text-align: center;
-            font-size: 1.3rem;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            position: relative;
         }
 
         .sync-indicator {
-            width: 10px;
-            height: 10px;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: #ff0000;
+            margin-left: 10px;
+            vertical-align: middle;
         }
 
         .sync-indicator.connected {
             background: #00ff00;
         }
 
+        /* 탭 스타일 */
         .tabs {
             display: flex;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
         }
 
-        .tab {
-            flex: 1;
-            padding: 15px;
+        .tab-button {
+            padding: 12px 30px;
+            background: none;
             border: none;
-            background: white;
-            font-size: 1rem;
-            cursor: pointer;
             border-bottom: 3px solid transparent;
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: -2px;
         }
 
-        .tab.active {
+        .tab-button:hover {
+            color: #333;
+            background: #f9f9f9;
+        }
+
+        .tab-button.active {
             color: #4CAF50;
             border-bottom-color: #4CAF50;
-        }
-
-        .content {
-            display: none;
-            padding: 15px;
-        }
-
-        .content.active {
-            display: block;
-        }
-
-        .input-box {
             background: white;
-            padding: 15px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 비디오 관리 스타일 */
+        .input-form {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
             border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        input, textarea {
-            width: 100%;
-            padding: 12px;
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], textarea {
+            padding: 10px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
 
-        input:focus, textarea:focus {
+        input[type="text"]:focus, textarea:focus {
             outline: none;
             border-color: #4CAF50;
         }
 
-        button {
+        textarea {
             width: 100%;
-            padding: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-add {
+            align-self: flex-end;
+            padding: 10px 30px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
+            transition: background 0.3s;
         }
 
-        button:active {
+        .btn-add:hover {
             background: #45a049;
         }
 
-        .item {
-            background: white;
-            padding: 15px;
+        /* 메모장 스타일 */
+        .memo-input-section {
+            background: #f9f9f9;
+            padding: 20px;
             border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
 
-        .item-title {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .memo-input-section h3 {
+            margin-bottom: 15px;
+            color: #333;
             font-size: 1.1rem;
         }
 
-        .item-url {
-            color: #1a73e8;
-            word-break: break-all;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-block;
-            margin: 5px 0;
-        }
-
-        .item-thumb {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-
-        .item-actions {
+        .memo-controls {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 10px;
         }
 
-        .btn-small {
-            flex: 1;
-            padding: 8px;
+        .char-count {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .btn-add-memo {
+            padding: 10px 30px;
+            background: #2196F3;
+            color: white;
             border: none;
             border-radius: 5px;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-add-memo:hover {
+            background: #1976D2;
+        }
+
+        /* 테이블 스타일 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table thead {
+            background: #f0f0f0;
+        }
+
+        .data-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .thumbnail-cell {
+            width: 200px;
+        }
+
+        .thumbnail-img {
+            width: 180px;
+            height: 101px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .thumbnail-img:hover {
+            transform: scale(1.05);
+        }
+
+        .video-link {
+            color: #1a73e8;
+            text-decoration: none;
+            word-break: break-all;
+            display: block;
+            max-width: 400px;
+        }
+
+        .video-link:hover {
+            text-decoration: underline;
+        }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
             color: white;
         }
 
-        .btn-edit {
-            background: #2196F3;
-        }
+        .platform-youtube { background: #FF0000; }
+        .platform-shorts { background: #FF6B6B; }
+        .platform-vimeo { background: #1ab7ea; }
+        .platform-dailymotion { background: #0066DC; }
 
-        .btn-delete {
-            background: #f44336;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 50px;
-            color: #999;
-        }
-
-        .memo-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .memo-text {
+        .memo-content {
+            line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
-            margin-bottom: 10px;
-            line-height: 1.5;
+            max-width: 800px;
+        }
+
+        .memo-content a {
+            color: #1a73e8;
+            text-decoration: none;
+            border-bottom: 1px solid #1a73e8;
+        }
+
+        .memo-content a:hover {
+            text-decoration: underline;
         }
 
         .memo-date {
             color: #666;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
-        .loading {
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-edit:hover, .btn-delete:hover {
+            opacity: 0.8;
+        }
+
+        .empty-state {
             text-align: center;
-            padding: 20px;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
             color: #666;
         }
 
-        /* 편집 모달 */
+        .error-message {
+            display: none;
+            padding: 10px;
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 5px;
+            color: #c00;
+            margin-bottom: 15px;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* 모달 스타일 */
         .modal {
             display: none;
             position: fixed;
@@ -210,10 +350,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
 
         .modal.active {
@@ -222,26 +362,42 @@
 
         .modal-content {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
+            max-width: 600px;
             width: 90%;
-            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
-            font-size: 1.2rem;
-            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-body .form-group {
             margin-bottom: 15px;
         }
 
         .modal-footer {
             display: flex;
+            justify-content: flex-end;
             gap: 10px;
-            margin-top: 15px;
         }
 
-        .modal-footer button {
-            flex: 1;
+        .btn-cancel, .btn-save {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
         .btn-cancel {
@@ -249,76 +405,169 @@
             color: #333;
         }
 
-        .sync-status {
-            text-align: center;
-            padding: 10px;
-            background: #fff3cd;
-            color: #856404;
-            margin: 10px;
-            border-radius: 5px;
-            display: none;
+        .btn-save {
+            background: #4CAF50;
+            color: white;
         }
 
-        .sync-status.show {
-            display: block;
+        @media (max-width: 768px) {
+            .input-form {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .thumbnail-img {
+                width: 120px;
+                height: 68px;
+            }
+
+            .video-link {
+                max-width: 200px;
+            }
+
+            .memo-content {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        📱 비디오 & 메모
-        <div class="sync-indicator" id="syncIndicator" title="동기화 상태"></div>
-    </div>
-    
-    <div class="sync-status" id="syncStatus">연결 중...</div>
-    
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('video')">🎬 비디오</button>
-        <button class="tab" onclick="showTab('memo')">📝 메모</button>
-    </div>
+    <div class="container">
+        <h1>
+            📋 비디오 & 메모 관리자
+            <span class="sync-indicator" id="syncIndicator" title="동기화 상태"></span>
+        </h1>
+        
+        <!-- 탭 네비게이션 -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('video')">🎬 비디오 관리</button>
+            <button class="tab-button" onclick="switchTab('memo')">📝 메모장</button>
+        </div>
 
-    <div id="videoTab" class="content active">
-        <div class="input-box">
-            <input type="text" id="vTitle" placeholder="제목">
-            <input type="text" id="vUrl" placeholder="YouTube URL">
-            <button onclick="addVideo()">비디오 추가</button>
-        </div>
-        <div id="videoList">
-            <div class="loading">연결 중...</div>
-        </div>
-    </div>
+        <!-- 비디오 관리 탭 -->
+        <div id="videoTab" class="tab-content active">
+            <div class="error-message" id="videoErrorMessage"></div>
+            
+            <div class="input-form">
+                <div class="form-group">
+                    <label for="videoTitle">제목</label>
+                    <input type="text" id="videoTitle" placeholder="비디오 제목 입력">
+                </div>
+                <div class="form-group">
+                    <label for="videoUrl">비디오 링크</label>
+                    <input type="text" id="videoUrl" placeholder="YouTube, Shorts, Vimeo 등 URL 입력">
+                </div>
+                <div class="form-group">
+                    <label for="videoMemo">메모</label>
+                    <input type="text" id="videoMemo" placeholder="메모 입력 (선택사항)">
+                </div>
+                <button class="btn-add" onclick="addVideo()">추가</button>
+            </div>
 
-    <div id="memoTab" class="content">
-        <div class="input-box">
-            <textarea id="memoText" rows="4" placeholder="메모 입력..."></textarea>
-            <button onclick="addMemo()">메모 추가</button>
+            <div id="videoTableContainer">
+                <table class="data-table" id="videoTable">
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>제목</th>
+                            <th>비디오 링크</th>
+                            <th>플랫폼</th>
+                            <th>썸네일</th>
+                            <th>메모</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="videoTableBody">
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="videoEmptyState">
+                    <h3>아직 추가된 비디오가 없습니다</h3>
+                    <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
+                </div>
+            </div>
         </div>
-        <div id="memoList">
-            <div class="loading">연결 중...</div>
+
+        <!-- 메모장 탭 -->
+        <div id="memoTab" class="tab-content">
+            <div class="error-message" id="memoErrorMessage"></div>
+            
+            <div class="memo-input-section">
+                <h3>새 메모 작성</h3>
+                <textarea id="memoInput" placeholder="메모를 입력하세요... (URL은 자동으로 링크로 변환됩니다)"></textarea>
+                <div class="memo-controls">
+                    <span class="char-count"><span id="memoCharCount">0</span>자</span>
+                    <button class="btn-add-memo" onclick="addMemo()">메모 추가</button>
+                </div>
+            </div>
+
+            <div id="memoTableContainer">
+                <table class="data-table" id="memoTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">번호</th>
+                            <th>내용</th>
+                            <th style="width: 180px;">작성일시</th>
+                            <th style="width: 140px;">작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memoTableBody">
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="memoEmptyState">
+                    <h3>아직 작성된 메모가 없습니다</h3>
+                    <p>위 입력란을 사용하여 메모를 추가해주세요</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 비디오 편집 모달 -->
-    <div class="modal" id="videoModal">
+    <div class="modal" id="videoEditModal">
         <div class="modal-content">
-            <div class="modal-header">비디오 수정</div>
-            <input type="text" id="editVideoTitle" placeholder="제목">
-            <input type="text" id="editVideoUrl" placeholder="URL">
+            <div class="modal-header">
+                <h2>비디오 정보 수정</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editVideoTitle">제목</label>
+                    <input type="text" id="editVideoTitle">
+                </div>
+                <div class="form-group">
+                    <label for="editVideoUrl">비디오 링크</label>
+                    <input type="text" id="editVideoUrl">
+                </div>
+                <div class="form-group">
+                    <label for="editVideoMemo">메모</label>
+                    <input type="text" id="editVideoMemo">
+                </div>
+            </div>
             <div class="modal-footer">
-                <button onclick="saveVideoEdit()">저장</button>
-                <button class="btn-cancel" onclick="closeVideoModal()">취소</button>
+                <button class="btn-cancel" onclick="closeVideoEditModal()">취소</button>
+                <button class="btn-save" onclick="saveVideoEdit()">저장</button>
             </div>
         </div>
     </div>
 
     <!-- 메모 편집 모달 -->
-    <div class="modal" id="memoModal">
+    <div class="modal" id="memoEditModal">
         <div class="modal-content">
-            <div class="modal-header">메모 수정</div>
-            <textarea id="editMemoText" rows="6" placeholder="메모 내용"></textarea>
+            <div class="modal-header">
+                <h2>메모 수정</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editMemoContent">내용</label>
+                    <textarea id="editMemoContent" style="min-height: 200px;"></textarea>
+                </div>
+            </div>
             <div class="modal-footer">
-                <button onclick="saveMemoEdit()">저장</button>
-                <button class="btn-cancel" onclick="closeMemoModal()">취소</button>
+                <button class="btn-cancel" onclick="closeMemoEditModal()">취소</button>
+                <button class="btn-save" onclick="saveMemoEdit()">저장</button>
             </div>
         </div>
     </div>
@@ -348,332 +597,412 @@
         window.memos = {};
         window.editingVideoKey = null;
         window.editingMemoKey = null;
-        window.isConnected = false;
+        window.currentTab = 'video';
 
         // 연결 상태 확인
         const connectedRef = ref(database, '.info/connected');
         onValue(connectedRef, (snapshot) => {
             const connected = snapshot.val();
             const indicator = document.getElementById('syncIndicator');
-            const status = document.getElementById('syncStatus');
             
             if (connected) {
                 console.log('Firebase 연결됨');
                 indicator.classList.add('connected');
-                status.textContent = '동기화 연결됨';
-                status.classList.add('show');
-                setTimeout(() => status.classList.remove('show'), 2000);
-                window.isConnected = true;
             } else {
                 console.log('Firebase 연결 끊김');
                 indicator.classList.remove('connected');
-                status.textContent = '연결 끊김 - 재연결 중...';
-                status.classList.add('show');
-                window.isConnected = false;
             }
         });
 
-        // 탭 전환
-        window.showTab = function(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        // 탭 전환 함수
+        window.switchTab = function(tab) {
+            window.currentTab = tab;
             
-            if(tab === 'video') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tab === 'video') {
+                document.querySelector('.tab-button:nth-child(1)').classList.add('active');
                 document.getElementById('videoTab').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab')[1].classList.add('active');
+            } else if (tab === 'memo') {
+                document.querySelector('.tab-button:nth-child(2)').classList.add('active');
                 document.getElementById('memoTab').classList.add('active');
             }
         }
 
-        // 비디오 추가
+        // 비디오 관련 함수들
         window.addVideo = function() {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다. 잠시 후 다시 시도하세요.');
+            const titleInput = document.getElementById('videoTitle');
+            const urlInput = document.getElementById('videoUrl');
+            const memoInput = document.getElementById('videoMemo');
+            
+            const title = titleInput.value.trim();
+            const url = urlInput.value.trim();
+            const memo = memoInput.value.trim();
+            
+            if (!title || !url) {
+                showVideoError('제목과 URL을 모두 입력해주세요.');
                 return;
             }
-
-            const title = document.getElementById('vTitle').value.trim();
-            const url = document.getElementById('vUrl').value.trim();
             
-            if(!title || !url) {
-                alert('제목과 URL을 입력하세요');
+            const videoInfo = extractVideoInfo(url);
+            
+            if (!videoInfo) {
+                showVideoError('지원하지 않는 비디오 플랫폼입니다.');
                 return;
             }
-
-            let videoId = '';
-            let thumb = '';
             
-            if(url.includes('youtube.com/watch')) {
-                videoId = url.split('v=')[1]?.split('&')[0];
-            } else if(url.includes('youtu.be/')) {
-                videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            } else if(url.includes('youtube.com/shorts/')) {
-                videoId = url.split('shorts/')[1]?.split('?')[0];
-            }
-            
-            if(videoId) {
-                thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            }
-
             // Firebase에 저장
             const videosRef = ref(database, 'videos');
             push(videosRef, {
                 title: title,
                 url: url,
-                thumb: thumb,
+                platform: videoInfo.platform,
+                thumbnailUrl: videoInfo.thumbnailUrl,
+                videoId: videoInfo.videoId,
+                memo: memo,
                 date: new Date().toISOString()
-            }).then(() => {
-                console.log('비디오 추가됨');
-                document.getElementById('vTitle').value = '';
-                document.getElementById('vUrl').value = '';
-            }).catch((error) => {
-                console.error('비디오 추가 실패:', error);
-                alert('추가 실패: ' + error.message);
             });
+            
+            titleInput.value = '';
+            urlInput.value = '';
+            memoInput.value = '';
+            
+            document.getElementById('videoErrorMessage').classList.remove('active');
         }
 
-        // 비디오 목록 렌더링
-        function renderVideos() {
-            const list = document.getElementById('videoList');
+        function extractVideoInfo(url) {
+            let videoId = '';
+            let platform = '';
+            let thumbnailUrl = '';
+            
+            if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
+                platform = 'YouTube';
+                videoId = extractYouTubeId(url);
+                if (videoId) {
+                    thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    return { platform, videoId, thumbnailUrl };
+                }
+            }
+            else if (url.includes('youtube.com/shorts/')) {
+                platform = 'Shorts';
+                const match = url.match(/shorts\/([^?&]+)/);
+                if (match) {
+                    videoId = match[1];
+                    thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    return { platform, videoId, thumbnailUrl };
+                }
+            }
+            else if (url.includes('vimeo.com')) {
+                platform = 'Vimeo';
+                const match = url.match(/vimeo\.com\/(\d+)/);
+                if (match) {
+                    videoId = match[1];
+                    thumbnailUrl = `https://vumbnail.com/${videoId}.jpg`;
+                    return { platform, videoId, thumbnailUrl };
+                }
+            }
+            else if (url.includes('dailymotion.com') || url.includes('dai.ly')) {
+                platform = 'Dailymotion';
+                const match = url.match(/(?:dailymotion\.com\/video\/|dai\.ly\/)([^_?]+)/);
+                if (match) {
+                    videoId = match[1];
+                    thumbnailUrl = `https://www.dailymotion.com/thumbnail/video/${videoId}`;
+                    return { platform, videoId, thumbnailUrl };
+                }
+            }
+            
+            return null;
+        }
+
+        function extractYouTubeId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+                /youtube\.com\/embed\/([^&\n?#]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        function renderVideoTable() {
+            const tbody = document.getElementById('videoTableBody');
+            const emptyState = document.getElementById('videoEmptyState');
+            
             const videoArray = Object.entries(window.videos).sort((a, b) => 
                 new Date(b[1].date) - new Date(a[1].date)
             );
             
-            if(videoArray.length === 0) {
-                list.innerHTML = '<div class="empty">비디오가 없습니다</div>';
+            if (videoArray.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
                 return;
             }
-
-            list.innerHTML = videoArray.map(([key, v]) => `
-                <div class="item">
-                    <div class="item-title">${v.title}</div>
-                    ${v.thumb ? `<img src="${v.thumb}" class="item-thumb" onclick="window.open('${v.url}','_blank')">` : ''}
-                    <a href="${v.url}" target="_blank" class="item-url">${v.url}</a>
-                    <div class="item-actions">
-                        <button class="btn-small btn-edit" onclick="editVideo('${key}')">수정</button>
-                        <button class="btn-small btn-delete" onclick="deleteVideo('${key}')">삭제</button>
-                    </div>
-                </div>
+            
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = videoArray.map(([key, video], index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${video.title}</td>
+                    <td><a href="${video.url}" target="_blank" class="video-link">${video.url}</a></td>
+                    <td>
+                        <span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>
+                    </td>
+                    <td class="thumbnail-cell">
+                        <img src="${video.thumbnailUrl}" alt="${video.title}" class="thumbnail-img" onclick="window.open('${video.url}', '_blank')">
+                    </td>
+                    <td style="max-width: 300px; word-wrap: break-word;">${video.memo || '-'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
+                            <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
+                        </div>
+                    </td>
+                </tr>
             `).join('');
         }
 
-        // 비디오 수정
         window.editVideo = function(key) {
-            const video = window.videos[key];
-            if (!video) return;
-            
             window.editingVideoKey = key;
+            const video = window.videos[key];
+            
             document.getElementById('editVideoTitle').value = video.title;
             document.getElementById('editVideoUrl').value = video.url;
-            document.getElementById('videoModal').classList.add('active');
+            document.getElementById('editVideoMemo').value = video.memo || '';
+            document.getElementById('videoEditModal').classList.add('active');
+        }
+
+        window.closeVideoEditModal = function() {
+            document.getElementById('videoEditModal').classList.remove('active');
+            window.editingVideoKey = null;
         }
 
         window.saveVideoEdit = function() {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다.');
-                return;
-            }
-
+            if (!window.editingVideoKey) return;
+            
             const title = document.getElementById('editVideoTitle').value.trim();
             const url = document.getElementById('editVideoUrl').value.trim();
+            const memo = document.getElementById('editVideoMemo').value.trim();
             
             if (!title || !url) {
-                alert('제목과 URL을 입력하세요');
+                showVideoError('제목과 URL을 모두 입력해주세요.');
                 return;
             }
-
-            let videoId = '';
-            let thumb = '';
             
-            if(url.includes('youtube.com/watch')) {
-                videoId = url.split('v=')[1]?.split('&')[0];
-            } else if(url.includes('youtu.be/')) {
-                videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            } else if(url.includes('youtube.com/shorts/')) {
-                videoId = url.split('shorts/')[1]?.split('?')[0];
+            const videoInfo = extractVideoInfo(url);
+            
+            if (!videoInfo) {
+                showVideoError('지원하지 않는 비디오 플랫폼입니다.');
+                return;
             }
             
-            if(videoId) {
-                thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            }
-
             const videoRef = ref(database, `videos/${window.editingVideoKey}`);
             update(videoRef, {
                 title: title,
                 url: url,
-                thumb: thumb,
+                platform: videoInfo.platform,
+                thumbnailUrl: videoInfo.thumbnailUrl,
+                videoId: videoInfo.videoId,
+                memo: memo,
                 date: new Date().toISOString()
-            }).then(() => {
-                closeVideoModal();
             });
-        }
-
-        window.closeVideoModal = function() {
-            document.getElementById('videoModal').classList.remove('active');
-            window.editingVideoKey = null;
-        }
-
-        // 비디오 삭제
-        window.deleteVideo = function(key) {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다.');
-                return;
-            }
-
-            if(confirm('삭제하시겠습니까?')) {
-                const videoRef = ref(database, `videos/${key}`);
-                remove(videoRef).then(() => {
-                    console.log('비디오 삭제됨');
-                }).catch((error) => {
-                    console.error('삭제 실패:', error);
-                });
-            }
-        }
-
-        // 메모 추가
-        window.addMemo = function() {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다. 잠시 후 다시 시도하세요.');
-                return;
-            }
-
-            const text = document.getElementById('memoText').value.trim();
             
-            if(!text) {
-                alert('메모를 입력하세요');
+            closeVideoEditModal();
+        }
+
+        window.deleteVideo = function(key) {
+            if (confirm('정말로 이 비디오를 삭제하시겠습니까?')) {
+                const videoRef = ref(database, `videos/${key}`);
+                remove(videoRef);
+            }
+        }
+
+        function showVideoError(message) {
+            const errorElement = document.getElementById('videoErrorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+            
+            setTimeout(() => {
+                errorElement.classList.remove('active');
+            }, 3000);
+        }
+
+        // 메모 관련 함수들
+        window.addMemo = function() {
+            const memoInput = document.getElementById('memoInput');
+            const content = memoInput.value.trim();
+            
+            if (!content) {
+                showMemoError('메모 내용을 입력해주세요.');
                 return;
             }
-
+            
             // Firebase에 저장
             const memosRef = ref(database, 'memos');
             push(memosRef, {
-                text: text,
+                content: content,
                 date: new Date().toISOString()
-            }).then(() => {
-                console.log('메모 추가됨');
-                document.getElementById('memoText').value = '';
-            }).catch((error) => {
-                console.error('메모 추가 실패:', error);
-                alert('추가 실패: ' + error.message);
             });
+            
+            memoInput.value = '';
+            document.getElementById('memoCharCount').textContent = '0';
+            
+            document.getElementById('memoErrorMessage').classList.remove('active');
         }
 
-        // 메모 목록 렌더링
-        function renderMemos() {
-            const list = document.getElementById('memoList');
+        function renderMemoTable() {
+            const tbody = document.getElementById('memoTableBody');
+            const emptyState = document.getElementById('memoEmptyState');
+            
             const memoArray = Object.entries(window.memos).sort((a, b) => 
                 new Date(b[1].date) - new Date(a[1].date)
             );
             
-            if(memoArray.length === 0) {
-                list.innerHTML = '<div class="empty">메모가 없습니다</div>';
+            if (memoArray.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
                 return;
             }
-
-            list.innerHTML = memoArray.map(([key, m]) => `
-                <div class="memo-item">
-                    <div class="memo-text">${linkify(escapeHtml(m.text))}</div>
-                    <div class="memo-date">${new Date(m.date).toLocaleString('ko-KR')}</div>
-                    <div class="item-actions">
-                        <button class="btn-small btn-edit" onclick="editMemo('${key}')">수정</button>
-                        <button class="btn-small btn-delete" onclick="deleteMemo('${key}')">삭제</button>
-                    </div>
-                </div>
+            
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = memoArray.map(([key, memo], index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</td>
+                    <td class="memo-date">${new Date(memo.date).toLocaleString('ko-KR')}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
+                            <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
+                        </div>
+                    </td>
+                </tr>
             `).join('');
         }
 
-        // 메모 수정
-        window.editMemo = function(key) {
-            const memo = window.memos[key];
-            if (!memo) return;
-            
-            window.editingMemoKey = key;
-            document.getElementById('editMemoText').value = memo.text;
-            document.getElementById('memoModal').classList.add('active');
-        }
-
-        window.saveMemoEdit = function() {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다.');
-                return;
-            }
-
-            const text = document.getElementById('editMemoText').value.trim();
-            
-            if (!text) {
-                alert('메모를 입력하세요');
-                return;
-            }
-
-            const memoRef = ref(database, `memos/${window.editingMemoKey}`);
-            update(memoRef, {
-                text: text,
-                date: new Date().toISOString()
-            }).then(() => {
-                closeMemoModal();
-            });
-        }
-
-        window.closeMemoModal = function() {
-            document.getElementById('memoModal').classList.remove('active');
-            window.editingMemoKey = null;
-        }
-
-        // 메모 삭제
-        window.deleteMemo = function(key) {
-            if (!window.isConnected) {
-                alert('서버에 연결되지 않았습니다.');
-                return;
-            }
-
-            if(confirm('삭제하시겠습니까?')) {
-                const memoRef = ref(database, `memos/${key}`);
-                remove(memoRef).then(() => {
-                    console.log('메모 삭제됨');
-                }).catch((error) => {
-                    console.error('삭제 실패:', error);
-                });
-            }
-        }
-
-        // HTML 이스케이프
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // URL 링크 변환
-        function linkify(text) {
-            const urlPattern = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-            return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+        function convertUrlsToLinks(text) {
+            const urlPattern = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+            
+            return text.replace(urlPattern, function(url) {
+                let href = url;
+                if (!url.match(/^https?:\/\//)) {
+                    href = 'http://' + url;
+                }
+                return `<a href="${href}" target="_blank">${url}</a>`;
+            });
+        }
+
+        window.editMemo = function(key) {
+            window.editingMemoKey = key;
+            const memo = window.memos[key];
+            
+            document.getElementById('editMemoContent').value = memo.content;
+            document.getElementById('memoEditModal').classList.add('active');
+        }
+
+        window.closeMemoEditModal = function() {
+            document.getElementById('memoEditModal').classList.remove('active');
+            window.editingMemoKey = null;
+        }
+
+        window.saveMemoEdit = function() {
+            if (!window.editingMemoKey) return;
+            
+            const content = document.getElementById('editMemoContent').value.trim();
+            
+            if (!content) {
+                showMemoError('메모 내용을 입력해주세요.');
+                return;
+            }
+            
+            const memoRef = ref(database, `memos/${window.editingMemoKey}`);
+            update(memoRef, {
+                content: content,
+                date: new Date().toISOString()
+            });
+            
+            closeMemoEditModal();
+        }
+
+        window.deleteMemo = function(key) {
+            if (confirm('정말로 이 메모를 삭제하시겠습니까?')) {
+                const memoRef = ref(database, `memos/${key}`);
+                remove(memoRef);
+            }
+        }
+
+        function showMemoError(message) {
+            const errorElement = document.getElementById('memoErrorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+            
+            setTimeout(() => {
+                errorElement.classList.remove('active');
+            }, 3000);
         }
 
         // 실시간 데이터 리스너
         const videosRef = ref(database, 'videos');
         onValue(videosRef, (snapshot) => {
-            console.log('비디오 데이터 수신');
             window.videos = snapshot.val() || {};
-            renderVideos();
+            renderVideoTable();
         });
 
         const memosRef = ref(database, 'memos');
         onValue(memosRef, (snapshot) => {
-            console.log('메모 데이터 수신');
             window.memos = snapshot.val() || {};
-            renderMemos();
+            renderMemoTable();
+        });
+
+        // 이벤트 리스너들
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addVideo();
+            }
+        });
+
+        document.getElementById('videoTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('videoUrl').focus();
+            }
+        });
+
+        // 메모 글자수 카운터
+        document.getElementById('memoInput').addEventListener('input', function(e) {
+            const charCount = e.target.value.length;
+            document.getElementById('memoCharCount').textContent = charCount;
+        });
+
+        // 메모 Ctrl+Enter로 추가
+        document.getElementById('memoInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                addMemo();
+            }
         });
 
         // 모달 외부 클릭 시 닫기
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
                 window.editingVideoKey = null;
                 window.editingMemoKey = null;
             }
-        }
+        });
     </script>
 </body>
 </html>
