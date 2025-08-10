@@ -195,11 +195,12 @@
             background: #1976D2;
         }
 
-        /* 테이블 스타일 */
+        /* 테이블 스타일 - PC용 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            display: table;
         }
 
         .data-table thead {
@@ -410,26 +411,161 @@
             color: white;
         }
 
+        /* 모바일용 카드 레이아웃 */
+        .mobile-cards {
+            display: none;
+        }
+
+        .video-card, .memo-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .card-url {
+            color: #1a73e8;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.9rem;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .card-memo {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* 모바일 반응형 디자인 */
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                padding: 15px;
+                margin-bottom: 0;
+                background: white;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .tabs {
+                margin-bottom: 0;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: white;
+            }
+
+            .tab-button {
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            .tab-content {
+                padding: 15px;
+            }
+
             .input-form {
                 grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 10px;
             }
 
+            .btn-add {
+                align-self: stretch;
+                padding: 12px;
+            }
+
+            .memo-input-section {
+                padding: 15px;
+            }
+
+            textarea {
+                min-height: 100px;
+            }
+
+            .memo-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-add-memo {
+                width: 100%;
+                padding: 12px;
+            }
+
+            /* 모바일에서 테이블 숨기고 카드 보여주기 */
             .data-table {
-                font-size: 0.9rem;
+                display: none !important;
             }
 
-            .thumbnail-img {
-                width: 120px;
-                height: 68px;
+            .mobile-cards {
+                display: block;
             }
 
-            .video-link {
-                max-width: 200px;
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 10px;
             }
 
-            .memo-content {
-                max-width: 100%;
+            input[type="text"], textarea {
+                font-size: 16px; /* iOS 줌 방지 */
+            }
+
+            .empty-state {
+                padding: 40px 20px;
             }
         }
     </style>
@@ -467,6 +603,7 @@
                 <button class="btn-add" onclick="addVideo()">추가</button>
             </div>
 
+            <!-- PC용 테이블 -->
             <div id="videoTableContainer">
                 <table class="data-table" id="videoTable">
                     <thead>
@@ -483,11 +620,14 @@
                     <tbody id="videoTableBody">
                     </tbody>
                 </table>
-                
-                <div class="empty-state" id="videoEmptyState">
-                    <h3>아직 추가된 비디오가 없습니다</h3>
-                    <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
-                </div>
+            </div>
+
+            <!-- 모바일용 카드 -->
+            <div class="mobile-cards" id="videoCards"></div>
+            
+            <div class="empty-state" id="videoEmptyState">
+                <h3>아직 추가된 비디오가 없습니다</h3>
+                <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
             </div>
         </div>
 
@@ -504,6 +644,7 @@
                 </div>
             </div>
 
+            <!-- PC용 테이블 -->
             <div id="memoTableContainer">
                 <table class="data-table" id="memoTable">
                     <thead>
@@ -517,11 +658,14 @@
                     <tbody id="memoTableBody">
                     </tbody>
                 </table>
-                
-                <div class="empty-state" id="memoEmptyState">
-                    <h3>아직 작성된 메모가 없습니다</h3>
-                    <p>위 입력란을 사용하여 메모를 추가해주세요</p>
-                </div>
+            </div>
+
+            <!-- 모바일용 카드 -->
+            <div class="mobile-cards" id="memoCards"></div>
+            
+            <div class="empty-state" id="memoEmptyState">
+                <h3>아직 작성된 메모가 없습니다</h3>
+                <p>위 입력란을 사용하여 메모를 추가해주세요</p>
             </div>
         </div>
     </div>
@@ -739,6 +883,7 @@
 
         function renderVideoTable() {
             const tbody = document.getElementById('videoTableBody');
+            const cards = document.getElementById('videoCards');
             const emptyState = document.getElementById('videoEmptyState');
             
             const videoArray = Object.entries(window.videos).sort((a, b) => 
@@ -747,12 +892,14 @@
             
             if (videoArray.length === 0) {
                 tbody.innerHTML = '';
+                cards.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
             
+            // PC용 테이블 렌더링
             tbody.innerHTML = videoArray.map(([key, video], index) => `
                 <tr>
                     <td>${index + 1}</td>
@@ -772,6 +919,23 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            // 모바일용 카드 렌더링
+            cards.innerHTML = videoArray.map(([key, video], index) => `
+                <div class="video-card">
+                    <div class="card-header">
+                        <span class="card-title">${video.title || ''}</span>
+                        ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : ''}
+                    </div>
+                    ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="card-thumbnail" onclick="window.open('${video.url || '#'}', '_blank')">` : ''}
+                    <a href="${video.url || '#'}" target="_blank" class="card-url">${video.url || ''}</a>
+                    ${video.memo ? `<div class="card-memo">${video.memo}</div>` : ''}
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
@@ -865,6 +1029,7 @@
 
         function renderMemoTable() {
             const tbody = document.getElementById('memoTableBody');
+            const cards = document.getElementById('memoCards');
             const emptyState = document.getElementById('memoEmptyState');
             
             const memoArray = Object.entries(window.memos).sort((a, b) => 
@@ -873,12 +1038,14 @@
             
             if (memoArray.length === 0) {
                 tbody.innerHTML = '';
+                cards.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
             
+            // PC용 테이블 렌더링
             tbody.innerHTML = memoArray.map(([key, memo], index) => `
                 <tr>
                     <td>${index + 1}</td>
@@ -891,6 +1058,18 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            // 모바일용 카드 렌더링
+            cards.innerHTML = memoArray.map(([key, memo], index) => `
+                <div class="memo-card">
+                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</div>
+                    <div class="memo-date">${new Date(memo.date).toLocaleString('ko-KR')}</div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
