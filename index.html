@@ -412,25 +412,32 @@
 
         @media (max-width: 768px) {
             .input-form {
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto auto;
+                grid-template-columns: 1fr;
             }
 
             .data-table {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }
 
             .thumbnail-img {
-                width: 120px;
-                height: 68px;
+                width: 100%;
+                height: auto;
+                max-width: 150px;
             }
 
             .video-link {
-                max-width: 200px;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .memo-content {
                 max-width: 100%;
+            }
+
+            .thumbnail-cell {
+                width: 30%;
             }
         }
     </style>
