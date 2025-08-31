@@ -1067,14 +1067,42 @@
         const videosRef = ref(database, 'videos');
         onValue(videosRef, (snapshot) => {
             window.videos = snapshot.val() || {};
+            console.log('비디오 데이터:', window.videos);
             renderVideoTable();
         });
 
         const memosRef = ref(database, 'memos');
         onValue(memosRef, (snapshot) => {
             window.memos = snapshot.val() || {};
+            console.log('메모 데이터:', window.memos);
             renderMemoTable();
         });
+
+        // 테스트 데이터 추가 (임시)
+        setTimeout(() => {
+            if (Object.keys(window.videos).length === 0) {
+                console.log('테스트 비디오 데이터 추가 중...');
+                const videosRef = ref(database, 'videos');
+                push(videosRef, {
+                    title: "테스트 비디오",
+                    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    platform: "YouTube",
+                    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+                    videoId: "dQw4w9WgXcQ",
+                    memo: "테스트 메모",
+                    date: new Date().toISOString()
+                });
+            }
+            
+            if (Object.keys(window.memos).length === 0) {
+                console.log('테스트 메모 데이터 추가 중...');
+                const memosRef = ref(database, 'memos');
+                push(memosRef, {
+                    content: "테스트 메모입니다",
+                    date: new Date().toISOString()
+                });
+            }
+        }, 2000);
 
         // 이벤트 리스너들
         document.getElementById('videoUrl').addEventListener('keypress', function(e) {
