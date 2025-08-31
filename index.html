@@ -569,6 +569,9 @@
                     </tbody>
                 </table>
                 
+                <div class="card-container" id="memoCardContainer">
+                </div>
+                
                 <div class="empty-state" id="memoEmptyState">
                     <h3>아직 작성된 메모가 없습니다</h3>
                     <p>위 입력란을 사용하여 메모를 추가해주세요</p>
@@ -602,6 +605,9 @@
                     <tbody id="bookmarkTableBody">
                     </tbody>
                 </table>
+                
+                <div class="card-container" id="bookmarkCardContainer">
+                </div>
                 
                 <div class="empty-state" id="bookmarkEmptyState">
                     <h3>아직 작성된 즐겨찾기가 없습니다</h3>
@@ -1000,6 +1006,7 @@
 
         function renderMemoTable() {
             const tbody = document.getElementById('memoTableBody');
+            const cardContainer = document.getElementById('memoCardContainer');
             const emptyState = document.getElementById('memoEmptyState');
             
             const memoArray = Object.entries(window.memos).sort((a, b) => 
@@ -1008,6 +1015,7 @@
             
             if (memoArray.length === 0) {
                 tbody.innerHTML = '';
+                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -1026,6 +1034,17 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            cardContainer.innerHTML = memoArray.map(([key, memo], index) => `
+                <div class="memo-card">
+                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</div>
+                    <div class="memo-date" style="margin-top: 10px; font-size: 0.8rem;">${new Date(memo.date).toLocaleString('ko-KR')}</div>
+                    <div class="card-actions" style="margin-top: 10px;">
+                        <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
@@ -1121,6 +1140,7 @@
 
         function renderBookmarkTable() {
             const tbody = document.getElementById('bookmarkTableBody');
+            const cardContainer = document.getElementById('bookmarkCardContainer');
             const emptyState = document.getElementById('bookmarkEmptyState');
             
             const bookmarkArray = Object.entries(window.bookmarks).sort((a, b) => 
@@ -1129,6 +1149,7 @@
             
             if (bookmarkArray.length === 0) {
                 tbody.innerHTML = '';
+                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -1147,6 +1168,17 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            cardContainer.innerHTML = bookmarkArray.map(([key, bookmark], index) => `
+                <div class="memo-card">
+                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(bookmark.content))}</div>
+                    <div class="memo-date" style="margin-top: 10px; font-size: 0.8rem;">${new Date(bookmark.date).toLocaleString('ko-KR')}</div>
+                    <div class="card-actions" style="margin-top: 10px;">
+                        <button class="btn-edit" onclick="editBookmark('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteBookmark('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
