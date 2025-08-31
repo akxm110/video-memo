@@ -416,21 +416,82 @@
             }
 
             .data-table {
+                display: none;
+            }
+
+            .card-container {
+                display: block;
+            }
+
+            .video-card, .memo-card {
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                border: 1px solid #e0e0e0;
+            }
+
+            .card-thumbnail-wrapper {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .card-thumbnail {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+
+            .card-platform {
+                margin-bottom: 10px;
+            }
+
+            .card-url {
+                color: #1a73e8;
                 font-size: 0.9rem;
+                word-break: break-all;
+                margin-bottom: 10px;
+                text-decoration: underline;
             }
 
-            .thumbnail-img {
-                width: 120px;
-                height: 68px;
+            .card-memo {
+                color: #666;
+                font-size: 1rem;
+                margin-bottom: 15px;
+                line-height: 1.5;
             }
 
-            .video-link {
-                max-width: 200px;
+            .card-date {
+                color: #999;
+                font-size: 0.8rem;
+                margin-bottom: 15px;
             }
 
-            .memo-content {
-                max-width: 100%;
+            .card-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
             }
+
+            .btn-edit, .btn-delete {
+                flex: 1;
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+
+        .card-container {
+            display: none;
         }
     </style>
 </head>
@@ -484,6 +545,9 @@
                     </tbody>
                 </table>
                 
+                <div class="card-container" id="videoCardContainer">
+                </div>
+                
                 <div class="empty-state" id="videoEmptyState">
                     <h3>아직 추가된 비디오가 없습니다</h3>
                     <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
@@ -517,6 +581,9 @@
                     <tbody id="memoTableBody">
                     </tbody>
                 </table>
+                
+                <div class="card-container" id="memoCardContainer">
+                </div>
                 
                 <div class="empty-state" id="memoEmptyState">
                     <h3>아직 작성된 메모가 없습니다</h3>
@@ -739,6 +806,7 @@
 
         function renderVideoTable() {
             const tbody = document.getElementById('videoTableBody');
+            const cardContainer = document.getElementById('videoCardContainer');
             const emptyState = document.getElementById('videoEmptyState');
             
             const videoArray = Object.entries(window.videos).sort((a, b) => 
@@ -747,6 +815,7 @@
             
             if (videoArray.length === 0) {
                 tbody.innerHTML = '';
+                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -772,6 +841,26 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            cardContainer.innerHTML = videoArray.map(([key, video], index) => `
+                <div class="video-card">
+                    <div class="card-thumbnail-wrapper">
+                        ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="card-thumbnail" onclick="window.open('${video.url || '#'}', '_blank')">` : ''}
+                    </div>
+                    <div class="card-title">${video.title || ''}</div>
+                    <div class="card-platform">
+                        ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : ''}
+                    </div>
+                    <div class="card-url">
+                        <a href="${video.url || '#'}" target="_blank">${video.url || ''}</a>
+                    </div>
+                    ${video.memo ? `<div class="card-memo">${video.memo}</div>` : ''}
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
@@ -865,6 +954,7 @@
 
         function renderMemoTable() {
             const tbody = document.getElementById('memoTableBody');
+            const cardContainer = document.getElementById('memoCardContainer');
             const emptyState = document.getElementById('memoEmptyState');
             
             const memoArray = Object.entries(window.memos).sort((a, b) => 
@@ -873,6 +963,7 @@
             
             if (memoArray.length === 0) {
                 tbody.innerHTML = '';
+                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -891,6 +982,17 @@
                         </div>
                     </td>
                 </tr>
+            `).join('');
+
+            cardContainer.innerHTML = memoArray.map(([key, memo], index) => `
+                <div class="memo-card">
+                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</div>
+                    <div class="card-date">${new Date(memo.date).toLocaleString('ko-KR')}</div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
+                        <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
+                    </div>
+                </div>
             `).join('');
         }
 
