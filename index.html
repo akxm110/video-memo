@@ -511,13 +511,21 @@
                 font-weight: bold;
                 color: #555;
                 display: inline-block;
-                width: 80px;
+                width: 70px;
                 margin-right: 10px;
+                vertical-align: top;
             }
 
             .thumbnail-cell {
                 width: 100%;
                 text-align: center;
+                padding: 15px 0 !important;
+            }
+
+            .thumbnail-cell:before {
+                display: block;
+                text-align: center;
+                margin-bottom: 10px;
             }
 
             .thumbnail-img {
@@ -525,6 +533,8 @@
                 max-width: 280px;
                 height: auto;
                 border-radius: 8px;
+                display: block;
+                margin: 0 auto;
             }
 
             .video-link {
@@ -540,15 +550,19 @@
             }
 
             .action-buttons {
-                flex-direction: column;
-                gap: 5px;
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
                 width: 100%;
+                justify-content: center;
+                margin-top: 5px;
             }
 
             .btn-edit, .btn-delete {
-                width: 100%;
+                flex: 1;
                 padding: 8px;
                 font-size: 0.85rem;
+                text-align: center;
             }
 
             .modal-content {
