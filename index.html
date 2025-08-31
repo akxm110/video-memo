@@ -411,25 +411,166 @@
         }
 
         @media (max-width: 768px) {
-            .input-form {
-                grid-template-columns: 1fr;
+            body {
+                padding: 10px;
             }
 
-            .data-table {
+            .container {
+                padding: 15px;
+                margin: 0;
+                border-radius: 0;
+                max-width: 100%;
+                min-height: 100vh;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .tabs {
+                margin-bottom: 20px;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 1rem;
+                flex: 1;
+                text-align: center;
+            }
+
+            .input-form {
+                grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+            }
+
+            input[type="text"], textarea {
+                padding: 8px;
                 font-size: 0.9rem;
             }
 
+            .btn-add, .btn-add-memo {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                width: 100%;
+            }
+
+            .memo-input-section {
+                padding: 15px;
+            }
+
+            .memo-input-section h3 {
+                font-size: 1rem;
+            }
+
+            .data-table {
+                font-size: 0.8rem;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .data-table thead,
+            .data-table tbody,
+            .data-table th,
+            .data-table td,
+            .data-table tr {
+                display: block;
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .data-table tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                padding: 10px;
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .data-table td {
+                border: none;
+                padding: 8px 0;
+                text-align: left;
+                white-space: normal;
+            }
+
+            .data-table td:before {
+                content: attr(data-label) ": ";
+                font-weight: bold;
+                color: #555;
+                display: inline-block;
+                width: 80px;
+                margin-right: 10px;
+            }
+
+            .thumbnail-cell {
+                width: 100%;
+                text-align: center;
+            }
+
             .thumbnail-img {
-                width: 120px;
-                height: 68px;
+                width: 100%;
+                max-width: 280px;
+                height: auto;
+                border-radius: 8px;
             }
 
             .video-link {
-                max-width: 200px;
+                max-width: 100%;
+                word-break: break-all;
+                font-size: 0.85rem;
             }
 
             .memo-content {
                 max-width: 100%;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+                width: 100%;
+            }
+
+            .btn-edit, .btn-delete {
+                width: 100%;
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state h3 {
+                font-size: 1rem;
+            }
+
+            .char-count {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -755,17 +896,17 @@
             
             tbody.innerHTML = videoArray.map(([key, video], index) => `
                 <tr>
-                    <td>${index + 1}</td>
-                    <td>${video.title || ''}</td>
-                    <td><a href="${video.url || '#'}" target="_blank" class="video-link">${video.url || ''}</a></td>
-                    <td>
+                    <td data-label="번호">${index + 1}</td>
+                    <td data-label="제목">${video.title || ''}</td>
+                    <td data-label="비디오 링크"><a href="${video.url || '#'}" target="_blank" class="video-link">${video.url || ''}</a></td>
+                    <td data-label="플랫폼">
                         ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : '-'}
                     </td>
-                    <td class="thumbnail-cell">
+                    <td class="thumbnail-cell" data-label="썸네일">
                         ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="thumbnail-img" onclick="window.open('${video.url || '#'}', '_blank')">` : '-'}
                     </td>
-                    <td style="max-width: 300px; word-wrap: break-word;">${video.memo || '-'}</td>
-                    <td>
+                    <td data-label="메모" style="max-width: 300px; word-wrap: break-word;">${video.memo || '-'}</td>
+                    <td data-label="작업">
                         <div class="action-buttons">
                             <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
                             <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
@@ -881,10 +1022,10 @@
             
             tbody.innerHTML = memoArray.map(([key, memo], index) => `
                 <tr>
-                    <td>${index + 1}</td>
-                    <td class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</td>
-                    <td class="memo-date">${new Date(memo.date).toLocaleString('ko-KR')}</td>
-                    <td>
+                    <td data-label="번호">${index + 1}</td>
+                    <td class="memo-content" data-label="내용">${convertUrlsToLinks(escapeHtml(memo.content))}</td>
+                    <td class="memo-date" data-label="작성일시">${new Date(memo.date).toLocaleString('ko-KR')}</td>
+                    <td data-label="작업">
                         <div class="action-buttons">
                             <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
                             <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
