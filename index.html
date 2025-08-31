@@ -416,82 +416,21 @@
             }
 
             .data-table {
-                display: none;
-            }
-
-            .card-container {
-                display: block;
-            }
-
-            .video-card, .memo-card {
-                background: white;
-                border-radius: 15px;
-                padding: 20px;
-                margin-bottom: 15px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                border: 1px solid #e0e0e0;
-            }
-
-            .card-thumbnail-wrapper {
-                text-align: center;
-                margin-bottom: 15px;
-            }
-
-            .card-thumbnail {
-                width: 100%;
-                max-width: 300px;
-                height: auto;
-                border-radius: 10px;
-                cursor: pointer;
-            }
-
-            .card-title {
-                font-size: 1.2rem;
-                font-weight: bold;
-                margin-bottom: 10px;
-                color: #333;
-            }
-
-            .card-platform {
-                margin-bottom: 10px;
-            }
-
-            .card-url {
-                color: #1a73e8;
                 font-size: 0.9rem;
-                word-break: break-all;
-                margin-bottom: 10px;
-                text-decoration: underline;
             }
 
-            .card-memo {
-                color: #666;
-                font-size: 1rem;
-                margin-bottom: 15px;
-                line-height: 1.5;
+            .thumbnail-img {
+                width: 120px;
+                height: 68px;
             }
 
-            .card-date {
-                color: #999;
-                font-size: 0.8rem;
-                margin-bottom: 15px;
+            .video-link {
+                max-width: 200px;
             }
 
-            .card-actions {
-                display: flex;
-                gap: 10px;
-                justify-content: center;
+            .memo-content {
+                max-width: 100%;
             }
-
-            .btn-edit, .btn-delete {
-                flex: 1;
-                padding: 12px;
-                font-size: 1rem;
-            }
-        }
-
-        .card-container {
-            display: none;
         }
     </style>
 </head>
@@ -545,9 +484,6 @@
                     </tbody>
                 </table>
                 
-                <div class="card-container" id="videoCardContainer">
-                </div>
-                
                 <div class="empty-state" id="videoEmptyState">
                     <h3>아직 추가된 비디오가 없습니다</h3>
                     <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
@@ -581,9 +517,6 @@
                     <tbody id="memoTableBody">
                     </tbody>
                 </table>
-                
-                <div class="card-container" id="memoCardContainer">
-                </div>
                 
                 <div class="empty-state" id="memoEmptyState">
                     <h3>아직 작성된 메모가 없습니다</h3>
@@ -654,8 +587,6 @@
             messagingSenderId: "874134651920",
             appId: "1:874134651920:web:fbd3f0d94cb239c8e4f695"
         };
-
-        console.log('Firebase 설정:', firebaseConfig);
 
         // Firebase 초기화
         const app = initializeApp(firebaseConfig);
@@ -808,7 +739,6 @@
 
         function renderVideoTable() {
             const tbody = document.getElementById('videoTableBody');
-            const cardContainer = document.getElementById('videoCardContainer');
             const emptyState = document.getElementById('videoEmptyState');
             
             const videoArray = Object.entries(window.videos).sort((a, b) => 
@@ -817,7 +747,6 @@
             
             if (videoArray.length === 0) {
                 tbody.innerHTML = '';
-                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -843,26 +772,6 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
-
-            cardContainer.innerHTML = videoArray.map(([key, video], index) => `
-                <div class="video-card">
-                    <div class="card-thumbnail-wrapper">
-                        ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="card-thumbnail" onclick="window.open('${video.url || '#'}', '_blank')">` : ''}
-                    </div>
-                    <div class="card-title">${video.title || ''}</div>
-                    <div class="card-platform">
-                        ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : ''}
-                    </div>
-                    <div class="card-url">
-                        <a href="${video.url || '#'}" target="_blank">${video.url || ''}</a>
-                    </div>
-                    ${video.memo ? `<div class="card-memo">${video.memo}</div>` : ''}
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
-                        <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
-                    </div>
-                </div>
             `).join('');
         }
 
@@ -900,7 +809,8 @@
                 return;
             }
             
-            const videoData = {
+            const videoRef = ref(database, `videos/${window.editingVideoKey}`);
+            update(videoRef, {
                 title: title,
                 url: url,
                 platform: videoInfo.platform,
@@ -908,26 +818,15 @@
                 videoId: videoInfo.videoId,
                 memo: memo,
                 date: new Date().toISOString()
-            };
+            });
             
-            // 새 경로에 업데이트
-            const videoRef = ref(database, `videos/${window.editingVideoKey}`);
-            update(videoRef, videoData);
-            
-            // 이전 경로에서 데이터 삭제 (마이그레이션)
-            const oldVideoRef = ref(database, `data/videos/${window.editingVideoKey}`);
-            remove(oldVideoRef);
-
             closeVideoEditModal();
         }
 
         window.deleteVideo = function(key) {
             if (confirm('정말로 이 비디오를 삭제하시겠습니까?')) {
-                // 새 경로와 이전 경로 모두에서 삭제
                 const videoRef = ref(database, `videos/${key}`);
                 remove(videoRef);
-                const oldVideoRef = ref(database, `data/videos/${key}`);
-                remove(oldVideoRef);
             }
         }
 
@@ -966,7 +865,6 @@
 
         function renderMemoTable() {
             const tbody = document.getElementById('memoTableBody');
-            const cardContainer = document.getElementById('memoCardContainer');
             const emptyState = document.getElementById('memoEmptyState');
             
             const memoArray = Object.entries(window.memos).sort((a, b) => 
@@ -975,7 +873,6 @@
             
             if (memoArray.length === 0) {
                 tbody.innerHTML = '';
-                cardContainer.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
@@ -994,17 +891,6 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
-
-            cardContainer.innerHTML = memoArray.map(([key, memo], index) => `
-                <div class="memo-card">
-                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</div>
-                    <div class="card-date">${new Date(memo.date).toLocaleString('ko-KR')}</div>
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
-                        <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
-                    </div>
-                </div>
             `).join('');
         }
 
@@ -1049,29 +935,19 @@
                 return;
             }
             
-            const memoData = {
+            const memoRef = ref(database, `memos/${window.editingMemoKey}`);
+            update(memoRef, {
                 content: content,
                 date: new Date().toISOString()
-            };
-
-            // 새 경로에 업데이트
-            const memoRef = ref(database, `memos/${window.editingMemoKey}`);
-            update(memoRef, memoData);
-            
-            // 이전 경로에서 데이터 삭제 (마이그레이션)
-            const oldMemoRef = ref(database, `data/memos/${window.editingMemoKey}`);
-            remove(oldMemoRef);
+            });
             
             closeMemoEditModal();
         }
 
         window.deleteMemo = function(key) {
             if (confirm('정말로 이 메모를 삭제하시겠습니까?')) {
-                // 새 경로와 이전 경로 모두에서 삭제
                 const memoRef = ref(database, `memos/${key}`);
                 remove(memoRef);
-                const oldMemoRef = ref(database, `data/memos/${key}`);
-                remove(oldMemoRef);
             }
         }
 
@@ -1085,59 +961,17 @@
             }, 3000);
         }
 
-        // --- 데이터 로딩 및 실시간 동기화 로직 개선 ---
-        
-        // 데이터 임시 저장소
-        let oldVideosData = {};
-        let newVideosData = {};
-        let oldMemosData = {};
-        let newMemosData = {};
-
-        // 비디오 데이터 병합 및 렌더링
-        function mergeAndRenderVideos() {
-            // 이전 데이터와 새 데이터를 병합하되, 새 데이터가 우선순위를 가집니다.
-            window.videos = { ...oldVideosData, ...newVideosData };
-            renderVideoTable();
-        }
-
-        // 메모 데이터 병합 및 렌더링
-        function mergeAndRenderMemos() {
-            // 이전 데이터와 새 데이터를 병합하되, 새 데이터가 우선순위를 가집니다.
-            window.memos = { ...oldMemosData, ...newMemosData };
-            renderMemoTable();
-        }
-
-        // 실시간 데이터 리스너 설정
-        // 이전 경로 ('data/videos') 리스너
-        const oldVideosRef = ref(database, 'data/videos');
-        onValue(oldVideosRef, (snapshot) => {
-            console.log('이전 경로(videos) 데이터 수신:', snapshot.val());
-            oldVideosData = snapshot.val() || {};
-            mergeAndRenderVideos();
-        });
-
-        // 새 경로 ('videos') 리스너
+        // 실시간 데이터 리스너
         const videosRef = ref(database, 'videos');
         onValue(videosRef, (snapshot) => {
-            console.log('새 경로(videos) 데이터 수신:', snapshot.val());
-            newVideosData = snapshot.val() || {};
-            mergeAndRenderVideos();
-        });
-        
-        // 이전 경로 ('data/memos') 리스너
-        const oldMemosRef = ref(database, 'data/memos');
-        onValue(oldMemosRef, (snapshot) => {
-            console.log('이전 경로(memos) 데이터 수신:', snapshot.val());
-            oldMemosData = snapshot.val() || {};
-            mergeAndRenderMemos();
+            window.videos = snapshot.val() || {};
+            renderVideoTable();
         });
 
-        // 새 경로 ('memos') 리스너
         const memosRef = ref(database, 'memos');
         onValue(memosRef, (snapshot) => {
-            console.log('새 경로(memos) 데이터 수신:', snapshot.val());
-            newMemosData = snapshot.val() || {};
-            mergeAndRenderMemos();
+            window.memos = snapshot.val() || {};
+            renderMemoTable();
         });
 
         // 이벤트 리스너들
