@@ -655,6 +655,8 @@
             appId: "1:874134651920:web:fbd3f0d94cb239c8e4f695"
         };
 
+        console.log('Firebase 설정:', firebaseConfig);
+
         // Firebase 초기화
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
@@ -1063,46 +1065,44 @@
             }, 3000);
         }
 
+        // 데이터 복구 시도
+        function recoverData() {
+            // 기존 데이터가 있었던 경로들 확인
+            const paths = ['videos', 'memos', 'data/videos', 'data/memos'];
+            
+            paths.forEach(path => {
+                const testRef = ref(database, path);
+                onValue(testRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        console.log(`${path}에서 데이터 발견:`, data);
+                        if (path.includes('videos')) {
+                            window.videos = data;
+                            renderVideoTable();
+                        } else if (path.includes('memos')) {
+                            window.memos = data;
+                            renderMemoTable();
+                        }
+                    }
+                });
+            });
+        }
+
         // 실시간 데이터 리스너
         const videosRef = ref(database, 'videos');
         onValue(videosRef, (snapshot) => {
             window.videos = snapshot.val() || {};
-            console.log('비디오 데이터:', window.videos);
             renderVideoTable();
         });
 
         const memosRef = ref(database, 'memos');
         onValue(memosRef, (snapshot) => {
             window.memos = snapshot.val() || {};
-            console.log('메모 데이터:', window.memos);
             renderMemoTable();
         });
 
-        // 테스트 데이터 추가 (임시)
-        setTimeout(() => {
-            if (Object.keys(window.videos).length === 0) {
-                console.log('테스트 비디오 데이터 추가 중...');
-                const videosRef = ref(database, 'videos');
-                push(videosRef, {
-                    title: "테스트 비디오",
-                    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    platform: "YouTube",
-                    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-                    videoId: "dQw4w9WgXcQ",
-                    memo: "테스트 메모",
-                    date: new Date().toISOString()
-                });
-            }
-            
-            if (Object.keys(window.memos).length === 0) {
-                console.log('테스트 메모 데이터 추가 중...');
-                const memosRef = ref(database, 'memos');
-                push(memosRef, {
-                    content: "테스트 메모입니다",
-                    date: new Date().toISOString()
-                });
-            }
-        }, 2000);
+        // 데이터 복구 실행
+        recoverData();
 
         // 이벤트 리스너들
         document.getElementById('videoUrl').addEventListener('keypress', function(e) {
