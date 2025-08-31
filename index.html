@@ -455,9 +455,22 @@
             }
 
             .btn-add, .btn-add-memo {
-                padding: 10px 20px;
+                padding: 12px 20px;
                 font-size: 0.9rem;
                 width: 100%;
+                -webkit-appearance: none;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+                min-height: 44px;
+            }
+
+            .btn-add:active, .btn-add-memo:active {
+                background: #45a049;
+                transform: scale(0.98);
+            }
+
+            .btn-add-memo:active {
+                background: #1976D2;
             }
 
             .memo-input-section {
@@ -560,9 +573,23 @@
 
             .btn-edit, .btn-delete {
                 flex: 1;
-                padding: 8px;
+                padding: 10px;
                 font-size: 0.85rem;
                 text-align: center;
+                -webkit-appearance: none;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+                min-height: 40px;
+            }
+
+            .btn-edit:active {
+                background: #1976D2;
+                transform: scale(0.98);
+            }
+
+            .btn-delete:active {
+                background: #d32f2f;
+                transform: scale(0.98);
             }
 
             .modal-content {
