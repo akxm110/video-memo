@@ -195,12 +195,11 @@
             background: #1976D2;
         }
 
-        /* 테이블 스타일 - PC용 */
+        /* 테이블 스타일 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            display: table;
         }
 
         .data-table thead {
@@ -411,161 +410,26 @@
             color: white;
         }
 
-        /* 모바일용 카드 레이아웃 */
-        .mobile-cards {
-            display: none;
-        }
-
-        .video-card, .memo-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .card-title {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #333;
-        }
-
-        .card-thumbnail {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-
-        .card-url {
-            color: #1a73e8;
-            text-decoration: none;
-            word-break: break-all;
-            font-size: 0.9rem;
-            display: block;
-            margin: 10px 0;
-        }
-
-        .card-memo {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .card-actions button {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: white;
-        }
-
-        /* 모바일 반응형 디자인 */
         @media (max-width: 768px) {
-            body {
-                padding: 0;
-            }
-
-            .container {
-                border-radius: 0;
-                padding: 0;
-                box-shadow: none;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-                padding: 15px;
-                margin-bottom: 0;
-                background: white;
-                border-bottom: 1px solid #e0e0e0;
-            }
-
-            .tabs {
-                margin-bottom: 0;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: white;
-            }
-
-            .tab-button {
-                padding: 12px;
-                font-size: 1rem;
-            }
-
-            .tab-content {
-                padding: 15px;
-            }
-
             .input-form {
                 grid-template-columns: 1fr;
-                padding: 15px;
-                gap: 10px;
             }
 
-            .btn-add {
-                align-self: stretch;
-                padding: 12px;
-            }
-
-            .memo-input-section {
-                padding: 15px;
-            }
-
-            textarea {
-                min-height: 100px;
-            }
-
-            .memo-controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn-add-memo {
-                width: 100%;
-                padding: 12px;
-            }
-
-            /* 모바일에서 테이블 숨기고 카드 보여주기 */
             .data-table {
-                display: none !important;
+                font-size: 0.9rem;
             }
 
-            .mobile-cards {
-                display: block;
+            .thumbnail-img {
+                width: 120px;
+                height: 68px;
             }
 
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-                margin: 10px;
+            .video-link {
+                max-width: 200px;
             }
 
-            input[type="text"], textarea {
-                font-size: 16px; /* iOS 줌 방지 */
-            }
-
-            .empty-state {
-                padding: 40px 20px;
+            .memo-content {
+                max-width: 100%;
             }
         }
     </style>
@@ -581,6 +445,7 @@
         <div class="tabs">
             <button class="tab-button active" onclick="switchTab('video')">🎬 비디오 관리</button>
             <button class="tab-button" onclick="switchTab('memo')">📝 메모장</button>
+            <button class="tab-button" onclick="switchTab('bookmark')">⭐ 즐겨찾기</button>
         </div>
 
         <!-- 비디오 관리 탭 -->
@@ -603,7 +468,6 @@
                 <button class="btn-add" onclick="addVideo()">추가</button>
             </div>
 
-            <!-- PC용 테이블 -->
             <div id="videoTableContainer">
                 <table class="data-table" id="videoTable">
                     <thead>
@@ -620,14 +484,11 @@
                     <tbody id="videoTableBody">
                     </tbody>
                 </table>
-            </div>
-
-            <!-- 모바일용 카드 -->
-            <div class="mobile-cards" id="videoCards"></div>
-            
-            <div class="empty-state" id="videoEmptyState">
-                <h3>아직 추가된 비디오가 없습니다</h3>
-                <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
+                
+                <div class="empty-state" id="videoEmptyState">
+                    <h3>아직 추가된 비디오가 없습니다</h3>
+                    <p>위 입력 폼을 사용하여 비디오를 추가해주세요</p>
+                </div>
             </div>
         </div>
 
@@ -644,7 +505,6 @@
                 </div>
             </div>
 
-            <!-- PC용 테이블 -->
             <div id="memoTableContainer">
                 <table class="data-table" id="memoTable">
                     <thead>
@@ -658,14 +518,45 @@
                     <tbody id="memoTableBody">
                     </tbody>
                 </table>
+                
+                <div class="empty-state" id="memoEmptyState">
+                    <h3>아직 작성된 메모가 없습니다</h3>
+                    <p>위 입력란을 사용하여 메모를 추가해주세요</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 즐겨찾기 탭 -->
+        <div id="bookmarkTab" class="tab-content">
+            <div class="error-message" id="bookmarkErrorMessage"></div>
+            
+            <div class="memo-input-section">
+                <h3>새 즐겨찾기 작성</h3>
+                <textarea id="bookmarkInput" placeholder="즐겨찾기를 입력하세요... (URL은 자동으로 링크로 변환됩니다)"></textarea>
+                <div class="memo-controls">
+                    <span class="char-count"><span id="bookmarkCharCount">0</span>자</span>
+                    <button class="btn-add-memo" onclick="addBookmark()">즐겨찾기 추가</button>
+                </div>
             </div>
 
-            <!-- 모바일용 카드 -->
-            <div class="mobile-cards" id="memoCards"></div>
-            
-            <div class="empty-state" id="memoEmptyState">
-                <h3>아직 작성된 메모가 없습니다</h3>
-                <p>위 입력란을 사용하여 메모를 추가해주세요</p>
+            <div id="bookmarkTableContainer">
+                <table class="data-table" id="bookmarkTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">번호</th>
+                            <th>내용</th>
+                            <th style="width: 180px;">작성일시</th>
+                            <th style="width: 140px;">작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookmarkTableBody">
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="bookmarkEmptyState">
+                    <h3>아직 작성된 즐겨찾기가 없습니다</h3>
+                    <p>위 입력란을 사용하여 즐겨찾기를 추가해주세요</p>
+                </div>
             </div>
         </div>
     </div>
@@ -716,6 +607,25 @@
         </div>
     </div>
 
+    <!-- 즐겨찾기 편집 모달 -->
+    <div class="modal" id="bookmarkEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>즐겨찾기 수정</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editBookmarkContent">내용</label>
+                    <textarea id="editBookmarkContent" style="min-height: 200px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeBookmarkEditModal()">취소</button>
+                <button class="btn-save" onclick="saveBookmarkEdit()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -739,8 +649,10 @@
         // 전역 변수
         window.videos = {};
         window.memos = {};
+        window.bookmarks = {};
         window.editingVideoKey = null;
         window.editingMemoKey = null;
+        window.editingBookmarkKey = null;
         window.currentTab = 'video';
 
         // 연결 상태 확인
@@ -775,6 +687,9 @@
             } else if (tab === 'memo') {
                 document.querySelector('.tab-button:nth-child(2)').classList.add('active');
                 document.getElementById('memoTab').classList.add('active');
+            } else if (tab === 'bookmark') {
+                document.querySelector('.tab-button:nth-child(3)').classList.add('active');
+                document.getElementById('bookmarkTab').classList.add('active');
             }
         }
 
@@ -883,7 +798,6 @@
 
         function renderVideoTable() {
             const tbody = document.getElementById('videoTableBody');
-            const cards = document.getElementById('videoCards');
             const emptyState = document.getElementById('videoEmptyState');
             
             const videoArray = Object.entries(window.videos).sort((a, b) => 
@@ -892,14 +806,12 @@
             
             if (videoArray.length === 0) {
                 tbody.innerHTML = '';
-                cards.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
             
-            // PC용 테이블 렌더링
             tbody.innerHTML = videoArray.map(([key, video], index) => `
                 <tr>
                     <td>${index + 1}</td>
@@ -919,23 +831,6 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
-
-            // 모바일용 카드 렌더링
-            cards.innerHTML = videoArray.map(([key, video], index) => `
-                <div class="video-card">
-                    <div class="card-header">
-                        <span class="card-title">${video.title || ''}</span>
-                        ${video.platform ? `<span class="platform-badge platform-${video.platform.toLowerCase()}">${video.platform}</span>` : ''}
-                    </div>
-                    ${video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" alt="${video.title || ''}" class="card-thumbnail" onclick="window.open('${video.url || '#'}', '_blank')">` : ''}
-                    <a href="${video.url || '#'}" target="_blank" class="card-url">${video.url || ''}</a>
-                    ${video.memo ? `<div class="card-memo">${video.memo}</div>` : ''}
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="editVideo('${key}')">수정</button>
-                        <button class="btn-delete" onclick="deleteVideo('${key}')">삭제</button>
-                    </div>
-                </div>
             `).join('');
         }
 
@@ -1029,7 +924,6 @@
 
         function renderMemoTable() {
             const tbody = document.getElementById('memoTableBody');
-            const cards = document.getElementById('memoCards');
             const emptyState = document.getElementById('memoEmptyState');
             
             const memoArray = Object.entries(window.memos).sort((a, b) => 
@@ -1038,14 +932,12 @@
             
             if (memoArray.length === 0) {
                 tbody.innerHTML = '';
-                cards.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
             
-            // PC용 테이블 렌더링
             tbody.innerHTML = memoArray.map(([key, memo], index) => `
                 <tr>
                     <td>${index + 1}</td>
@@ -1058,18 +950,6 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
-
-            // 모바일용 카드 렌더링
-            cards.innerHTML = memoArray.map(([key, memo], index) => `
-                <div class="memo-card">
-                    <div class="memo-content">${convertUrlsToLinks(escapeHtml(memo.content))}</div>
-                    <div class="memo-date">${new Date(memo.date).toLocaleString('ko-KR')}</div>
-                    <div class="card-actions">
-                        <button class="btn-edit" onclick="editMemo('${key}')">수정</button>
-                        <button class="btn-delete" onclick="deleteMemo('${key}')">삭제</button>
-                    </div>
-                </div>
             `).join('');
         }
 
@@ -1140,6 +1020,109 @@
             }, 3000);
         }
 
+        // 즐겨찾기 관련 함수들
+        window.addBookmark = function() {
+            const bookmarkInput = document.getElementById('bookmarkInput');
+            const content = bookmarkInput.value.trim();
+            
+            if (!content) {
+                showBookmarkError('즐겨찾기 내용을 입력해주세요.');
+                return;
+            }
+            
+            // Firebase에 저장
+            const bookmarksRef = ref(database, 'bookmarks');
+            push(bookmarksRef, {
+                content: content,
+                date: new Date().toISOString()
+            });
+            
+            bookmarkInput.value = '';
+            document.getElementById('bookmarkCharCount').textContent = '0';
+            
+            document.getElementById('bookmarkErrorMessage').classList.remove('active');
+        }
+
+        function renderBookmarkTable() {
+            const tbody = document.getElementById('bookmarkTableBody');
+            const emptyState = document.getElementById('bookmarkEmptyState');
+            
+            const bookmarkArray = Object.entries(window.bookmarks).sort((a, b) => 
+                new Date(b[1].date) - new Date(a[1].date)
+            );
+            
+            if (bookmarkArray.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = bookmarkArray.map(([key, bookmark], index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="memo-content">${convertUrlsToLinks(escapeHtml(bookmark.content))}</td>
+                    <td class="memo-date">${new Date(bookmark.date).toLocaleString('ko-KR')}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editBookmark('${key}')">수정</button>
+                            <button class="btn-delete" onclick="deleteBookmark('${key}')">삭제</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.editBookmark = function(key) {
+            window.editingBookmarkKey = key;
+            const bookmark = window.bookmarks[key];
+            
+            document.getElementById('editBookmarkContent').value = bookmark.content;
+            document.getElementById('bookmarkEditModal').classList.add('active');
+        }
+
+        window.closeBookmarkEditModal = function() {
+            document.getElementById('bookmarkEditModal').classList.remove('active');
+            window.editingBookmarkKey = null;
+        }
+
+        window.saveBookmarkEdit = function() {
+            if (!window.editingBookmarkKey) return;
+            
+            const content = document.getElementById('editBookmarkContent').value.trim();
+            
+            if (!content) {
+                showBookmarkError('즐겨찾기 내용을 입력해주세요.');
+                return;
+            }
+            
+            const bookmarkRef = ref(database, `bookmarks/${window.editingBookmarkKey}`);
+            update(bookmarkRef, {
+                content: content,
+                date: new Date().toISOString()
+            });
+            
+            closeBookmarkEditModal();
+        }
+
+        window.deleteBookmark = function(key) {
+            if (confirm('정말로 이 즐겨찾기를 삭제하시겠습니까?')) {
+                const bookmarkRef = ref(database, `bookmarks/${key}`);
+                remove(bookmarkRef);
+            }
+        }
+
+        function showBookmarkError(message) {
+            const errorElement = document.getElementById('bookmarkErrorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+            
+            setTimeout(() => {
+                errorElement.classList.remove('active');
+            }, 3000);
+        }
+
         // 실시간 데이터 리스너
         const videosRef = ref(database, 'videos');
         onValue(videosRef, (snapshot) => {
@@ -1151,6 +1134,12 @@
         onValue(memosRef, (snapshot) => {
             window.memos = snapshot.val() || {};
             renderMemoTable();
+        });
+
+        const bookmarksRef = ref(database, 'bookmarks');
+        onValue(bookmarksRef, (snapshot) => {
+            window.bookmarks = snapshot.val() || {};
+            renderBookmarkTable();
         });
 
         // 이벤트 리스너들
@@ -1179,12 +1168,26 @@
             }
         });
 
+        // 즐겨찾기 글자수 카운터
+        document.getElementById('bookmarkInput').addEventListener('input', function(e) {
+            const charCount = e.target.value.length;
+            document.getElementById('bookmarkCharCount').textContent = charCount;
+        });
+
+        // 즐겨찾기 Ctrl+Enter로 추가
+        document.getElementById('bookmarkInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                addBookmark();
+            }
+        });
+
         // 모달 외부 클릭 시 닫기
         window.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('active');
                 window.editingVideoKey = null;
                 window.editingMemoKey = null;
+                window.editingBookmarkKey = null;
             }
         });
     </script>
